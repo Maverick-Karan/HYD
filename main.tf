@@ -4,4 +4,5 @@ module "new_account" {
   name                    = var.name
   email                   = var.email
   role_name               = var.role_name
+  provider                = aws.master
 }
