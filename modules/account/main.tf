@@ -1,3 +1,7 @@
+provider "aws" {
+  alias  = "master"
+}
+
 resource "aws_organizations_account" "new_account" {
   #provider = aws.master
 
