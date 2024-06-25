@@ -1,0 +1,4 @@
+.vs/
+backend.tf
+.terraform/
+.terraform.lock.hcl
