@@ -11,12 +11,21 @@ provider "aws" {
   region  = "us-east-1"
 }
 
-resource "aws_organizations_account" "new_account" {
-  provider = aws.master
+#resource "aws_organizations_account" "new_account" {
+#  provider = aws.master
 
-  name      = "${var.name}"
-  email     = "${var.email}"
-  role_name = "${var.role_name}"
+#  name      = "${var.name}"
+#  email     = "${var.email}"
+#  role_name = "${var.role_name}"
+#}
+
+resource "aws_s3_bucket" "example" {
+  bucket = "muayyybukcitt"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
 }
 
 #resource "aws_organizations_account" "new_account" {
