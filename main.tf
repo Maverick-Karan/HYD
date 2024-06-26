@@ -1,23 +1,23 @@
 ## create new account in VPC
-module "new_account" {
-  source                  = "./modules/account"
-  name                    = var.name
-  email                   = var.email
-  role_name               = var.role_name
-}
+#module "new_account" {
+#  source                  = "./modules/account"
+#  name                    = var.name
+#  email                   = var.email
+#  role_name               = var.role_name
+#}
 
 #provider "aws" {
 #  alias   = "master"
 #  region  = "us-east-1"
 #}
 
-#resource "aws_organizations_account" "new_account" {
-#  provider = aws.master
-#
-#  name      = "${var.name}"
-#  email     = "${var.email}"
-#  role_name = "${var.role_name}"
-#}
+resource "aws_organizations_account" "new_account" {
+  provider = aws.master
+
+  name      = "${var.name}"
+  email     = "${var.email}"
+  role_name = "${var.role_name}"
+}
 
 #resource "aws_organizations_account" "new_account" {
 #  provider = aws.master
