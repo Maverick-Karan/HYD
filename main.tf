@@ -4,7 +4,25 @@ module "new_account" {
   name                    = var.name
   email                   = var.email
   role_name               = var.role_name
-  providers               = {
-                              aws = aws.master
-                            }
 }
+
+#provider "aws" {
+#  alias   = "master"
+#  region  = "us-east-1"
+#}
+
+#resource "aws_organizations_account" "new_account" {
+#  provider = aws.master
+#
+#  name      = "${var.name}"
+#  email     = "${var.email}"
+#  role_name = "${var.role_name}"
+#}
+
+#resource "aws_organizations_account" "new_account" {
+#  provider = aws.master
+#
+#  name      = "NewAccountName"
+#  email     = "new-account@example.com"
+#  role_name = "OrganizationAccountAccessRole"
+#}

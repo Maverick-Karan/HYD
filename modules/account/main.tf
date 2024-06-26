@@ -1,9 +1,10 @@
-provider "aws" {
-  alias  = "master"
-}
+#provider "aws" {
+#  alias   = "master"
+#  region  = "us-east-1"
+#}
 
 resource "aws_organizations_account" "new_account" {
-  #provider = aws.master
+  provider = aws.master
 
   name      = "${var.name}"
   email     = "${var.email}"
