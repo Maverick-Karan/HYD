@@ -1,3 +1,4 @@
+// Provider configuration
 terraform {
   required_providers {
     aws = {
@@ -13,6 +14,17 @@ provider "aws" {
 }
 
 
+// Create a new AWS account within the organization
+resource "aws_organizations_account" "new_account" {
+  provider = aws.master
+
+  name      = "${var.name}"
+  email     = "${var.email}"
+  role_name = "${var.role_name}"
+}
+
+
+// Create an IAM role for Jenkins to assume
 resource "aws_iam_role" "jenkins_role" {
   name = "JenkinsDeployRole"
 
@@ -29,13 +41,15 @@ resource "aws_iam_role" "jenkins_role" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::YOUR_JENKINS_ACCOUNT_ID:role/JenkinsRole"
+          AWS = "arn:aws:iam::${var.jenkins_account_id}:role/JenkinsRole"
         }
         Action = "sts:AssumeRole"
       }
     ]
   })
+
   
+   // Attach an inline policy to the role
   inline_policy {
     name = "AllowAssumeRole"
     policy = jsonencode({
@@ -53,6 +67,19 @@ resource "aws_iam_role" "jenkins_role" {
   }
 }
 
+
+// Provider configuration to assume the role in the new AWS account
+provider "aws" {
+  alias  = "assume_role"
+  region = "us-east-1"
+
+  assume_role {
+    role_arn     = "arn:aws:iam::${aws_organizations_account.new_account.id}:role/OrganizationAccountAccessRole"
+  }
+}
+
+
+// Data source to fetch default VPCs in the new AWS account
 data "aws_vpcs" "default" {
   provider = aws.assume_role
   filter {
@@ -61,6 +88,8 @@ data "aws_vpcs" "default" {
   }
 }
 
+
+// Resource to delete the default VPCs
 resource "null_resource" "delete_default_vpc" {
   count = length(data.aws_vpcs.default.ids)
 
@@ -73,22 +102,6 @@ resource "null_resource" "delete_default_vpc" {
   }
 }
 
-provider "aws" {
-  alias  = "assume_role"
-  region = "us-west-2"
-
-  assume_role {
-    role_arn     = "arn:aws:iam::${aws_organizations_account.new_account.id}:role/OrganizationAccountAccessRole"
-  }
-}
-
-resource "aws_organizations_account" "new_account" {
-  provider = aws.master
-
-  name      = "${var.name}"
-  email     = "${var.email}"
-  role_name = "${var.role_name}"
-}
 
 #--------------------------------------------------------------------------------
 
