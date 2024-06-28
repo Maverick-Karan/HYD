@@ -6,6 +6,15 @@
 #  role_name               = var.role_name
 #}
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"  # Adjust the version as needed
+    }
+  }
+}
+
 provider "aws" {
   alias   = "master"
   region  = "us-east-1"
