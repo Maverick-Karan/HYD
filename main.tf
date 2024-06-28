@@ -88,19 +88,19 @@ data "aws_vpcs" "default" {
   }
 }
 
-
 // Resource to delete the default VPCs
 resource "null_resource" "delete_default_vpc" {
   count = length(data.aws_vpcs.default.ids)
 
   triggers = {
-    default_vpc_id = data.aws_vpcs.default.ids[count.index]
+    default_vpc_id = element(tolist(data.aws_vpcs.default.ids), count.index) // Convert set to list and get element by index
   }
 
   provisioner "local-exec" {
-    command = "aws ec2 delete-vpc --vpc-id ${data.aws_vpcs.default.ids[count.index]}"
+    command = "aws ec2 delete-vpc --vpc-id ${element(tolist(data.aws_vpcs.default.ids), count.index)}" // Command to delete the default VPC
   }
 }
+
 
 
 #--------------------------------------------------------------------------------
