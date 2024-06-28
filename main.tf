@@ -41,7 +41,7 @@ resource "aws_iam_role" "jenkins_role" {
       {
         Effect = "Allow"
         Principal = {
-          AWS = "arn:aws:iam::${var.jenkins_account_id}:role/JenkinsRole"
+          AWS = "arn:aws:iam::${var.jenkins_account_id}:role/JenkinsRole" // Ensure this ARN is correct
         }
         Action = "sts:AssumeRole"
       }
