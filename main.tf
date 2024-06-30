@@ -14,19 +14,41 @@ provider "aws" {
 }
 
 
+// Data source to get the current account ID
+data "aws_caller_identity" "master" {
+  provider = aws.master
+}
+
 // Create a new AWS account within the organization
 resource "aws_organizations_account" "new_account" {
   provider = aws.master
-
-  name      = "${var.name}"
-  email     = "${var.email}"
-  role_name = "${var.role_name}"
+  name     = var.name
+  email    = var.email
+  role_name = "OrganizationAccountAccessRole"
 }
 
+// Wait for the account to be ready
+resource "null_resource" "wait_for_account" {
+  provisioner "local-exec" {
+    command = "sleep 300"  // Wait for 5 minutes to ensure the account is ready
+  }
+  depends_on = [aws_organizations_account.new_account]
+}
 
-// Create an IAM role for Jenkins to assume
-resource "aws_iam_role" "jenkins_role" {
-  name = "JenkinsDeployRole"
+// Provider configuration to assume the role in the new AWS account
+provider "aws" {
+  alias  = "assume_role"
+  region = "us-east-1"
+
+  assume_role {
+    role_arn = "arn:aws:iam::${aws_organizations_account.new_account.id}:role/OrganizationAccountAccessRole"
+  }
+}
+
+// Create the OrganizationAccountAccessRole in the new account
+resource "aws_iam_role" "organization_account_access_role" {
+  provider = aws.assume_role
+  name     = "OrganizationAccountAccessRole"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -34,30 +56,27 @@ resource "aws_iam_role" "jenkins_role" {
       {
         Effect = "Allow"
         Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-        Action = "sts:AssumeRole"
-      },
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::${var.jenkins_account_id}:role/JenkinsRole" // Ensure this ARN is correct
+          AWS = "arn:aws:iam::${data.aws_caller_identity.master.account_id}:root"
         }
         Action = "sts:AssumeRole"
       }
     ]
   })
 
-  
-   // Attach an inline policy to the role
   inline_policy {
-    name = "AllowAssumeRole"
+    name = "OrganizationAccountAccessPolicy"
     policy = jsonencode({
       Version = "2012-10-17"
       Statement = [
         {
           Effect = "Allow"
           Action = [
+            "organizations:DescribeAccount",
+            "organizations:ListAccounts",
+            "organizations:DescribeOrganization",
+            "iam:CreateRole",
+            "iam:AttachRolePolicy",
+            "iam:PutRolePolicy",
             "sts:AssumeRole"
           ]
           Resource = "*"
@@ -67,65 +86,35 @@ resource "aws_iam_role" "jenkins_role" {
   }
 }
 
-
-// Provider configuration to assume the role in the new AWS account
-provider "aws" {
-  alias  = "assume_role"
-  region = "us-east-1"
-
-  assume_role {
-    role_arn     = "arn:aws:iam::${aws_organizations_account.new_account.id}:role/OrganizationAccountAccessRole"
-  }
-}
-
-
-// Data source to fetch default VPCs in the new AWS account
-data "aws_vpcs" "default" {
+// Create a role for Jenkins to assume in the new account
+resource "aws_iam_role" "jenkins_role" {
   provider = aws.assume_role
-  filter {
-    name   = "isDefault"
-    values = ["true"]
+  name     = "JenkinsDeployRole"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.master.account_id}:role/ExistingJenkinsRole"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  inline_policy {
+    name   = "AllowFullAccess"
+    policy = jsonencode({
+      Version = "2012-10-17"
+      Statement = [
+        {
+          Effect   = "Allow"
+          Action   = "*"
+          Resource = "*"
+        }
+      ]
+    })
   }
 }
-
-// Resource to delete the default VPCs
-resource "null_resource" "delete_default_vpc" {
-  count = length(data.aws_vpcs.default.ids)
-
-  triggers = {
-    default_vpc_id = element(tolist(data.aws_vpcs.default.ids), count.index) // Convert set to list and get element by index
-  }
-
-  provisioner "local-exec" {
-    command = "aws ec2 delete-vpc --vpc-id ${element(tolist(data.aws_vpcs.default.ids), count.index)}" // Command to delete the default VPC
-  }
-}
-
-
-
-#--------------------------------------------------------------------------------
-
-#resource "aws_organizations_account" "new_account" {
-#  provider = aws.master
-
-#  name      = "NewAccountName"
-#  email     = "new-account@example.com"
-#  role_name = "OrganizationAccountAccessRole"
-#}
-
-#resource "aws_s3_bucket" "example" {
-#  bucket = "muayyybukcitt"
-
-#  tags = {
-#    Name        = "My bucket"
-#    Environment = "Dev"
-#  }
-#}
-
-## create new account in VPC
-#module "new_account" {
-#  source                  = "./modules/account"
-#  name                    = var.name
-#  email                   = var.email
-#  role_name               = var.role_name
-#}
