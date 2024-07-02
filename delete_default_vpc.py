@@ -1,4 +1,5 @@
 import boto3
+import sys
 
 def delete_default_vpc(account_id):
     # Use the AWS SDK configured with the master account credentials
