@@ -3,7 +3,7 @@ Resources:
   CrossAccountAdminRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: OrganizationAccountAdminAccessRole
+      RoleName: StackSetAdminAccessRole
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
