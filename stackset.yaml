@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+  CrossAccountAdminRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: OrganizationAccountAdminAccessRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: 'arn:aws:iam::664967790151:root'
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: AdministratorAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: '*'
+                Resource: '*'
