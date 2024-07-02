@@ -1,22 +1,8 @@
 import boto3
-import sys
 
 def delete_default_vpc(account_id):
-    session = boto3.Session(profile_name='default')
-    sts_client = session.client('sts')
-    response = sts_client.assume_role(
-        RoleArn=f'arn:aws:iam::{account_id}:role/OrganizationAccountAccessRole',
-        RoleSessionName='DeleteDefaultVPCSession'
-    )
-    credentials = response['Credentials']
-
-    ec2_client = boto3.client(
-        'ec2',
-        aws_access_key_id=credentials['AccessKeyId'],
-        aws_secret_access_key=credentials['SecretAccessKey'],
-        aws_session_token=credentials['SessionToken'],
-        region_name='us-east-1'
-    )
+    # Use the AWS SDK configured with the master account credentials
+    ec2_client = boto3.client('ec2', region_name='us-east-1')
 
     response = ec2_client.describe_vpcs(
         Filters=[
