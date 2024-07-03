@@ -1,6 +1,22 @@
 import boto3
 import sys
 
+def assume_role(account_id):
+    role_arn = f"arn:aws:iam::{account_id}:role/StackSetAdminAccessRole"
+    session_name = "DeleteDefaultVpcSession"
+
+    sts_client = boto3.client("sts")
+    assumed_role = sts_client.assume_role(
+        RoleArn=role_arn, RoleSessionName=session_name
+    )
+
+    return boto3.Session(
+        aws_access_key_id=assumed_role["Credentials"]["AccessKeyId"],
+        aws_secret_access_key=assumed_role["Credentials"]["SecretAccessKey"],
+        aws_session_token=assumed_role["Credentials"]["SessionToken"],
+    )
+
+
 def delete_default_vpc(account_id):
     # Use the AWS SDK configured with the master account credentials
     ec2_client = boto3.client('ec2', region_name='us-east-1')
