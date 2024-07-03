@@ -16,10 +16,11 @@ def assume_role(account_id):
         aws_session_token=assumed_role["Credentials"]["SessionToken"],
     )
 
-
 def delete_default_vpc(account_id):
-    # Use the AWS SDK configured with the master account credentials
-    ec2_client = boto3.client('ec2', region_name='us-east-1')
+    session = assume_role(account_id)
+
+    # Use the AWS SDK configured with the assumed role session
+    ec2_client = session.client('ec2', region_name='us-east-1')
 
     response = ec2_client.describe_vpcs(
         Filters=[
@@ -29,6 +30,10 @@ def delete_default_vpc(account_id):
             }
         ]
     )
+
+    if not response['Vpcs']:
+        print(f"No default VPC found for account {account_id}")
+        return
 
     default_vpc_id = response['Vpcs'][0]['VpcId']
 
@@ -50,9 +55,10 @@ def delete_default_vpc(account_id):
 
     # Delete route tables (excluding the main route table)
     for rt in route_tables:
-        if not rt['Associations'][0]['Main']:
-            ec2_client.delete_route_table(RouteTableId=rt['RouteTableId'])
-            print(f"Deleted route table: {rt['RouteTableId']}")
+        for assoc in rt['Associations']:
+            if not assoc['Main']:
+                ec2_client.delete_route_table(RouteTableId=rt['RouteTableId'])
+                print(f"Deleted route table: {rt['RouteTableId']}")
 
     # Finally, delete the default VPC
     ec2_client.delete_vpc(VpcId=default_vpc_id)
