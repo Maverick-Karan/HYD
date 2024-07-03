@@ -2,7 +2,7 @@ import boto3
 import sys
 
 def assume_role(account_id):
-    role_arn = f"arn:aws:iam::{account_id}:role/StackSetAdminAccessRole"
+    role_arn = f"arn:aws:iam::211125675990:role/StackSetAdminAccessRole"
     session_name = "DeleteDefaultVpcSession"
 
     sts_client = boto3.client("sts")
