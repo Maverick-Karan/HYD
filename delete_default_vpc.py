@@ -61,3 +61,4 @@ def delete_default_vpc(account_id):
 if __name__ == "__main__":
     account_id = sys.argv[1]
     delete_default_vpc(account_id)
+    assume_role(account_id)
