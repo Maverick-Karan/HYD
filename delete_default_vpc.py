@@ -2,7 +2,7 @@ import boto3
 import sys
 
 def assume_role(account_id):
-    role_arn = f"arn:aws:iam::211125675990:role/StackSetAdminAccessRole"
+    role_arn = f"arn:aws:iam::{account_id}:role/StackSetAdminAccessRole"
     session_name = "DeleteDefaultVpcSession"
 
     sts_client = boto3.client("sts")
@@ -66,4 +66,4 @@ def delete_default_vpc(account_id):
 
 if __name__ == "__main__":
     account_id = sys.argv[1]
-    delete_default_vpc(account_id)
+    delete_default_vpc(int{account_id})
