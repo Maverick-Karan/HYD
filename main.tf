@@ -12,5 +12,5 @@ module "new_account" {
 module "delete_vpc" {
   source    = "./modules/python"
   new_account_id  = module.new_account.new_account_id
-//depends_on      = [module.new_account]
+  depends_on      = [module.new_account]
 }
