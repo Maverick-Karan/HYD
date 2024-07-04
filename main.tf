@@ -1,14 +1,6 @@
-provider "aws" {
-  alias  = "master"
-  region = "us-east-1"
-  #assume_role {
-  #  role_arn = "arn:aws:iam::664967790151:role/<ROLE_NAME>"
-  #}
-}
-
-
 // Create new account under OU-Project
-resource "aws_organizations_account" "new_account" {
+module "new_account" {
+  source    = "./modules/account"
   name      = "${var.name}"
   email     = "${var.email}"
   parent_id = "${var.parent_id}"
@@ -17,14 +9,8 @@ resource "aws_organizations_account" "new_account" {
 
 
 // Python script to delete default VPC
-resource "null_resource" "delete_default_vpc" {
-  triggers = {
-   always_run = "${timestamp()}"
-  }
-  provisioner "local-exec" {
-    command = <<EOT
-    python3 delete_default_vpc.py ${aws_organizations_account.new_account.id}
-    EOT
-  }
-  depends_on = [aws_organizations_account.new_account]
+module "delete_vpc" {
+  source    = "./modules/python"
+  new_account_id  = module.new_account.new_account_id
+  depends_on      = [module.new_account]
 }

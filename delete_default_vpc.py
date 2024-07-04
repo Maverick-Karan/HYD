@@ -20,7 +20,7 @@ def delete_default_vpc(account_id):
     session = assume_role(account_id)
 
     # Use the AWS SDK configured with the assumed role session
-    ec2_client = session.client('ec2', region_name='us-east-2')
+    ec2_client = session.client('ec2', region_name='us-west-1')
 
     response = ec2_client.describe_vpcs(
         Filters=[
