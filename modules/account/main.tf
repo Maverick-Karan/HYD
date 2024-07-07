@@ -1,7 +1,7 @@
-provider "aws" {
-  alias   = "master"
-  region  = "us-east-1"
-}
+#provider "aws" {
+#  alias   = "master"
+#  region  = "us-east-1"
+#}
 
 // Create new account under OU-Project
 resource "aws_organizations_account" "new_account" {
