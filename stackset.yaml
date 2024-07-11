@@ -9,7 +9,7 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              AWS: 'arn:aws:iam::664967790151:root'
+              AWS: 'arn:aws:iam::339713165832:root'
             Action: 'sts:AssumeRole'
       Policies:
         - PolicyName: AdministratorAccess

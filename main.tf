@@ -4,7 +4,7 @@ module "new_account" {
   name      = "${var.name}"
   email     = "${var.email}"
   parent_id = "${var.parent_id}"
-  role_name = "${var.role_name}"
+  role_name = "OrganizationAccountAccessRole"
 }
 
 
@@ -13,4 +13,22 @@ module "delete_vpc" {
   source    = "./modules/python"
   new_account_id  = module.new_account.new_account_id
   depends_on      = [module.new_account]
+}
+
+// Create alias for new account
+module "IAM_alias" {
+  providers = {
+    aws = aws.newOrg
+  }
+  source   = "./modules/alias"
+  username = var.username
+}
+
+
+// Set password policy for new account
+module "password_policy" {
+  source   = "./modules/password_policy"
+  providers = {
+    aws = aws.newOrg
+  }
 }
