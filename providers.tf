@@ -19,6 +19,6 @@ provider "aws" {
   alias  = "newOrg"
   region  = "us-east-1"
   assume_role {
-    role_arn = "arn:aws:iam::339713165832:role/StackSetAdminAccessRole"
+    role_arn = "arn:aws:iam::${module.new_account.new_account_id}:role/${var.role_name}"
   }
 }
