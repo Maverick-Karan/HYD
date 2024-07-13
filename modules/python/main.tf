@@ -1,3 +1,4 @@
+
 // Python script to delete default VPC
 resource "null_resource" "delete_default_vpc" {
   triggers = {

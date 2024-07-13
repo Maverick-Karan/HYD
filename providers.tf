@@ -8,11 +8,7 @@ terraform {
 }
 
 provider "aws" {
-  # alias  = "newOrg"
   region = "us-east-1"
-  # assume_role {
-  #   role_arn = "arn:aws:iam::${module.new_account.new_account_id}:role/${var.role_name}"
-  # }
 }
 
 provider "aws" {

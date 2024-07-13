@@ -22,13 +22,15 @@ module "IAM_alias" {
   }
   source   = "./modules/alias"
   username = var.username
+  depends_on      = [module.new_account]
 }
 
 
 // Set password policy for new account
 module "password_policy" {
-  source   = "./modules/password_policy"
   providers = {
     aws = aws.newOrg
   }
+  source   = "./modules/password_policy"
+  depends_on      = [module.new_account]
 }
