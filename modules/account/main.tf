@@ -1,12 +1,12 @@
-# terraform {
-#   required_providers {
-#     aws = {
-#       source  = "hashicorp/aws"
-#       version = "= 3.76.1"
-#       configuration_aliases = [ aws ]
-#     }
-#   }
-# }
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "= 3.76.1"
+      configuration_aliases = [ aws ]
+    }
+  }
+}
 
 // Create new account under OU-Project
 resource "aws_organizations_account" "new_account" {

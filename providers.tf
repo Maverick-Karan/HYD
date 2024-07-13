@@ -12,7 +12,14 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias  = "newOrg"
+  alias  = "master"
+  region  = "us-east-1"
+  assume_role {
+    role_arn = "arn:aws:iam::664967790151:role/account-create"
+  }
+}
+provider "aws" {
+  alias  = "new"
   region  = "us-east-1"
   assume_role {
     role_arn = "arn:aws:iam::${module.new_account.new_account_id}:role/${var.role_name}"

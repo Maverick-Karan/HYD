@@ -1,5 +1,8 @@
 // Create new account under OU-Project
 module "new_account" {
+  providers = {
+    aws = aws.master
+  }
   source    = "./modules/account"
   name      = "${var.name}"
   email     = "${var.email}"
@@ -18,7 +21,7 @@ module "delete_vpc" {
 // Create alias for new account
 module "IAM_alias" {
   providers = {
-    aws = aws.newOrg
+    aws = aws.new
   }
   source   = "./modules/alias"
   username = var.username
@@ -29,7 +32,7 @@ module "IAM_alias" {
 // Set password policy for new account
 module "password_policy" {
   providers = {
-    aws = aws.newOrg
+    aws = aws.new
   }
   source   = "./modules/password_policy"
   depends_on      = [module.new_account]
